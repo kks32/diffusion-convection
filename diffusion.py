@@ -8,7 +8,7 @@ from IPython.display import HTML
 # box size, m
 w = h = 1
 # intervals in x-, y- directions, m
-dx = dy = 0.01
+dx = dy = 0.005
 # Thermal diffusivity, m2.s-1
 alphaSoil =  2.08e-7 #2.08e-7 m^2/s
 alphaSteel = 1.172e-5 #m^2/s 1.172e-5 m^2/s
@@ -47,13 +47,13 @@ cr2, cx2, cy2 = 0.02, 0.5, 0.55
 cr2r2 = cr2**2
 
 # pipe geometry
-pr, pri, px, py = 0.1, 0.06, 0.59, 0.5 #0.59, 0.5
+pr, pri, px, py = 0.1, 0.06, 0.62, 0.5 #0.59, 0.5
 pr2 = pr**2
 pri2 = pri**2
 
 # Rayleigh number
-#ra = (rhow * g * (h -cx) * k * beta * (Thot-Tcool))/(mu*alphaSoil)
-#print("Rayleigh-Darcy number: {}".format(ra))
+ra = (rhow * g * (h -cx) * k * beta * (Thot-Tcool))/(mu*alphaSoil)
+print("Rayleigh-Darcy number: {}".format(ra))
 
 # Calculations
 nx, ny = int(w/dx), int(h/dy)
@@ -89,8 +89,6 @@ for i in range(nx):
         # Modify pipe water alpha
         elif ((i*dx-px)**2 + (j*dy-py)**2) < pri2:
             alpha[i,j] = alphaWater
-            
-
         
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit            
 def do_timestep(u0, u):
@@ -124,7 +122,7 @@ def do_timestep(u0, u):
                                           np.minimum(alpha[i, j], alpha[i-1, j]) * (u0[i-1, j] - u0[i, j]))/dy2 + \
                                           (np.minimum(alpha[i, j], alpha[i, j+1]) * (u0[i, j+1] - u0[i,j]) + \
                                            np.minimum(alpha[i, j], alpha[i, j-1]) * (u0[i,j-1] - u0[i,j]))/dx2) + \
-                                                        0. * dt * (1/(n*mu)*k*g*rhow)*(beta*(u0[i,j]-Tcool)) * \
+                                                        dt * (1/(n*mu)*k*g*rhow)*(beta*(u0[i,j]-Tcool)) * \
                                                         (u0[i+1,j] - u0[i,j])/(dy)
     
 
@@ -133,7 +131,7 @@ def do_timestep(u0, u):
     return u0, u
 
 # Number of timesteps
-nsteps = 50001
+nsteps = 10001
 npercent = int(nsteps/100)
 for m in range(nsteps):
     if m % (npercent) == 0:
@@ -147,12 +145,15 @@ print("Total simulation time: {} hours".format(dt * nsteps / 3600))
 
 fig = plt.figure()
 pcm = plt.pcolormesh(np.flipud(uu[len(uu)-1]))
+#plt.xticks([0,40,80,120,160,200],[0,20,40,60,80,100])
+#plt.yticks([0,40,80,120,160,200],[0,20,40,60,80,100])
 plt.colorbar()
 plt.show()
 
+heat = u[:,50]
+np.savetxt("heat.csv", heat, delimiter=",")
+
 
 #pcm = plt.pcolormesh(np.flipud(uu[0]))
-#plt.xlim(40,160)
-#plt.ylim(40,200)
 #plt.colorbar()    
 #plt.show()

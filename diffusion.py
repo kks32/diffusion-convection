@@ -20,7 +20,7 @@ n = 0.4
 # Viscosity kg/m
 mu = 1.00E-03 
 # Permeability m2
-k = 1E-12
+k = 1E-7
 # Thermal expansion 
 beta = 8.80E-05
 # Cf

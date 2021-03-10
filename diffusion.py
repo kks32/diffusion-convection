@@ -131,7 +131,7 @@ def do_timestep(u0, u, flux, fluxx, fluxy):
                 # The velocity corresponds to differential density, since we are measuring the differnetial temp,
                 # the rho(1 - beta(T)) is written as rho*(beta*DeltaT)
                 u[i, j] = u0[i, j] + \
-                    + conduction * dt * ((np.minimum(alpha[i, j], alpha[i+1, j]) *(u0[i+1, j] - u0[i,j]) + \
+                    + conduction * dt * thermal_conductivity * ((np.minimum(alpha[i, j], alpha[i+1, j]) *(u0[i+1, j] - u0[i,j]) + \
                                           np.minimum(alpha[i, j], alpha[i-1, j]) * (u0[i-1, j] - u0[i, j]))/dy2 + \
                                           (np.minimum(alpha[i, j], alpha[i, j+1]) * (u0[i, j+1] - u0[i,j]) + \
                                            np.minimum(alpha[i, j], alpha[i, j-1]) * (u0[i,j-1] - u0[i,j]))/dx2) + \
